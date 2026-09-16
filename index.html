@@ -1,0 +1,47 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Game 1 - Làm quen chuột</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fff8e8;color:#173b5f;font-family:Tahoma,Verdana,Arial,sans-serif}
+.top{display:flex;gap:12px;align-items:center;padding:12px 18px;flex-wrap:wrap}.title{font-size:27px;font-weight:900}
+.stat{background:#fff;padding:10px 14px;border-radius:9px;font-size:19px;font-weight:800}.right{margin-left:auto}
+.btn{border:0;border-radius:10px;background:#4d96ff;color:#fff;font:900 18px Tahoma,Verdana,Arial,sans-serif;padding:13px 19px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn2{background:#ff8a5b}.msg{text-align:center;font-size:21px;font-weight:900;padding:4px 8px 10px;min-height:38px}
+.board{position:relative;margin:0 14px 14px;height:650px;max-height:calc(100vh - 140px);min-height:480px;background:#bfe9ff;border:4px solid #fff;overflow:hidden;user-select:none;touch-action:none}
+.sun{position:absolute;right:4%;top:22px;width:64px;height:64px;border-radius:50%;background:#ffd166}.cloud{position:absolute;width:95px;height:30px;border-radius:30px;background:#fff}
+.c1{left:6%;top:52px}.c2{left:35%;top:80px}.c3{right:17%;top:55px}.grass{position:absolute;left:0;right:0;bottom:0;height:78px;background:#c9efaf}
+.card{position:absolute;z-index:30;left:50%;top:50%;transform:translate(-50%,-50%);width:min(780px,91%);background:#fff;border:5px solid #79cff0;border-radius:18px;padding:25px;text-align:center}
+.card h1,.card h2{margin:0 0 12px;font-size:30px}.card p{font-size:19px;line-height:1.5;font-weight:700}.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.demo{height:140px;max-width:540px;margin:14px auto 19px;background:#f5fbff;border:2px dashed #8fcbe6;border-radius:16px;position:relative}
+.mouse{position:absolute;width:56px;height:76px;border:4px solid #294e6d;border-radius:28px;background:#fff}.mouse:before{content:"";position:absolute;left:26px;top:0;height:30px;border-left:3px solid #294e6d}.mouse:after{content:"";position:absolute;left:5px;right:5px;top:29px;border-top:3px solid #294e6d}
+.pointer{position:absolute;width:0;height:0;border-top:31px solid #173b5f;border-right:20px solid transparent;transform:rotate(-18deg)}
+@media(max-width:700px){.title{font-size:21px}.stat{font-size:15px;padding:8px}.card p{font-size:16px}.card h1,.card h2{font-size:25px}.msg{font-size:17px}.board{height:72vh}}
+
+.target{position:absolute;width:88px;height:88px;border-radius:50%;border:5px solid #dfa82d;background:#ffd166;font-size:36px;font-weight:900;color:#173b5f;cursor:pointer}
+.drag{position:absolute;width:84px;height:84px;border-radius:17px;background:#ffb4a2;border:4px solid #d67f6d;font-size:36px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:grab}
+.basket{position:absolute;right:55px;bottom:105px;width:200px;height:145px;border:6px dashed #4d8b63;border-radius:20px;background:#dff3d5;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900}
+.folder{position:absolute;width:125px;height:90px;border:4px solid #d59d2b;border-radius:11px;background:#ffd166;color:#173b5f;font-size:17px;font-weight:900;cursor:pointer}
+.demoTarget{position:absolute;right:95px;top:35px;width:68px;height:68px;border-radius:50%;background:#ffd166;border:4px solid #dba82d}
+.demoBlock{position:absolute;left:75px;top:35px;width:70px;height:70px;border-radius:14px;background:#ffb4a2;border:4px solid #d67f6d;font-size:36px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.demoBasket{position:absolute;right:65px;top:27px;width:130px;height:90px;border:5px dashed #4d8b63;border-radius:15px;background:#dff3d5;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.demoFolder{position:absolute;left:50%;top:27px;transform:translateX(-50%);width:140px;height:90px;border:4px solid #d59d2b;border-radius:10px;background:#ffd166;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center}
+</style></head><body>
+<div class="top"><div class="title">GAME 1 - LÀM QUEN CHUỘT</div><div class="stat">Điểm: <span id="score">0</span></div><div class="stat">Vòng: <span id="round">1/3</span></div><div class="stat">Hoàn thành: <span id="progress">0/10</span></div><button class="btn right" id="restart">Chơi lại</button></div>
+<div class="msg" id="msg">Luyện nháy chuột, kéo thả và nháy đúp.</div>
+<div class="board" id="board"><div class="sun deco"></div><div class="cloud c1 deco"></div><div class="cloud c2 deco"></div><div class="cloud c3 deco"></div><div class="grass deco"></div>
+<div class="card"><h1>THỬ THÁCH CHUỘT MÁY TÍNH</h1><p>Hoàn thành 3 vòng cơ bản để mở thử thách khó hơn.</p><button class="btn" id="start">BẮT ĐẦU</button></div></div>
+<script>
+(function(){var B=document.getElementById('board'),S=document.getElementById('score'),R=document.getElementById('round'),P=document.getElementById('progress'),M=document.getElementById('msg');var score=0,round=1,done=0,drag=null,ox=0,oy=0;
+function clear(){Array.prototype.slice.call(B.children).forEach(function(n){if(!n.classList.contains('deco'))n.remove()})}function hud(){S.textContent=score;R.textContent=round+'/3';P.textContent=done+'/10'}
+function guide(t,txt,demo,next){clear();var c=document.createElement('div');c.className='card';c.innerHTML='<h2>'+t+'</h2><p>'+txt+'</p><div class="demo">'+demo+'</div>';var b=document.createElement('button');b.className='btn';b.textContent='EM ĐÃ HIỂU - BẮT ĐẦU';b.onclick=next;c.appendChild(b);B.appendChild(c)}
+function g1(){round=1;done=0;hud();M.textContent='HƯỚNG DẪN VÒNG 1';guide('VÒNG 1 - NHÁY CHUỘT','Đưa con trỏ đến hình tròn và <b>nhấn nút trái 1 lần</b>.','<div class="mouse" style="left:75px;top:28px"></div><div class="pointer" style="left:270px;top:58px"></div><div class="demoTarget"></div>',p1)}
+function pos(e){var w=B.clientWidth,h=B.clientHeight;e.style.left=(30+Math.random()*Math.max(40,w-150))+'px';e.style.top=(25+Math.random()*Math.max(40,h-210))+'px'}
+function p1(){clear();M.textContent='VÒNG 1: Nháy vào hình tròn!';var t=document.createElement('button');t.className='target';t.textContent='1';B.appendChild(t);pos(t);t.onclick=function(){score++;done++;hud();if(done>=10){round=2;done=0;hud();setTimeout(g2,250)}else{t.textContent=done+1;pos(t)}}}
+function g2(){M.textContent='HƯỚNG DẪN VÒNG 2';guide('VÒNG 2 - KÉO VÀ THẢ','<b>Nhấn giữ nút trái</b>, kéo khối chữ vào <b>GIỎ</b>, sau đó thả tay.','<div class="demoBlock">A</div><div class="pointer" style="left:210px;top:58px"></div><div style="position:absolute;left:270px;top:50px;font-size:36px;font-weight:900">→</div><div class="demoBasket">GIỎ</div>',p2)}
+function mk(i){var d=document.createElement('div');d.className='drag';d.textContent='ABCDE'.charAt(i%5);d.style.left=(25+(i%5)*95)+'px';d.style.top=(30+Math.floor(i/5)*105)+'px';d.onpointerdown=function(e){drag=d;var r=d.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;e.preventDefault()};B.appendChild(d)}
+function p2(){clear();M.textContent='VÒNG 2: Kéo các khối chữ vào GIỎ!';var b=document.createElement('div');b.className='basket';b.id='basket';b.textContent='GIỎ';B.appendChild(b);for(var i=0;i<10;i++)mk(i)}
+B.onpointermove=function(e){if(!drag)return;var r=B.getBoundingClientRect(),x=Math.max(0,Math.min(B.clientWidth-drag.offsetWidth,e.clientX-r.left-ox)),y=Math.max(0,Math.min(B.clientHeight-drag.offsetHeight,e.clientY-r.top-oy));drag.style.left=x+'px';drag.style.top=y+'px'};
+B.onpointerup=function(){if(!drag)return;var b=document.getElementById('basket');if(b){var a=drag.getBoundingClientRect(),z=b.getBoundingClientRect();if(a.left<z.right&&a.right>z.left&&a.top<z.bottom&&a.bottom>z.top){drag.remove();score++;done++;hud();if(done>=10){round=3;done=0;hud();setTimeout(g3,250)}}else M.textContent='Chưa vào giỏ. Em thử lại nhé!'}drag=null};
+function g3(){M.textContent='HƯỚNG DẪN VÒNG 3';guide('VÒNG 3 - NHÁY ĐÚP','Đưa con trỏ đến <b>THƯ MỤC</b> và nhấn nhanh nút trái <b>2 lần liên tiếp</b>.','<div class="mouse" style="left:55px;top:28px"></div><div class="pointer" style="left:180px;top:58px"></div><div class="demoFolder">THƯ MỤC</div><div style="position:absolute;right:25px;top:52px;font-size:19px;font-weight:900">NHÁY 2 LẦN</div>',p3)}
+function p3(){clear();M.textContent='VÒNG 3: Nháy ĐÚP vào từng thư mục!';for(var i=0;i<10;i++){(function(i){var f=document.createElement('button');f.className='folder';f.textContent='THƯ MỤC';f.style.left=(25+(i%5)*145)+'px';f.style.top=(30+Math.floor(i/5)*120)+'px';f.onclick=function(){M.textContent='Cần nháy nhanh 2 lần!'};f.ondblclick=function(){if(f.disabled)return;f.disabled=true;f.textContent='ĐÃ MỞ';score++;done++;hud();if(done>=10)setTimeout(fin,250)};B.appendChild(f)})(i)}}
+function fin(){clear();M.textContent='HOÀN THÀNH GAME 1!';var c=document.createElement('div');c.className='card';c.innerHTML='<h1>HOÀN THÀNH GAME 1!</h1><p>Điểm của em: <b>'+score+'/30</b><br>Em đã làm chủ các thao tác chuột cơ bản.<br>Sẵn sàng với thử thách khó hơn chưa?</p><div class="actions"><button class="btn" id="again">CHƠI LẠI</button><a class="btn btn2" href="game2/">GAME 2 - CHUỘT SIÊU TỐC</a></div>';B.appendChild(c);document.getElementById('again').onclick=reset}
+function reset(){score=0;round=1;done=0;hud();g1()}document.getElementById('start').onclick=g1;document.getElementById('restart').onclick=reset;hud()})();
+</script></body></html>
